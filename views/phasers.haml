@@ -1,0 +1,14 @@
+%h1 Phaser Catalog
+%table#catalog
+  %tr
+    %th Phaser Type
+    %th Price
+    %th In Stock
+  - phasers.each do |phaser|
+    %tr
+      %td
+        = phaser.name
+      %td
+        = phaser.price
+      %td
+        = phaser.quantity

@@ -1,0 +1,13 @@
+%h1 New Phaser
+%form#new_phaser{:action => '/phasers', :method => 'post'}
+  .name
+    %label{:for => 'phaser[name]'} Name
+    %input{:name => 'phaser[name]', :type => 'text'}
+  .price
+    %label{:for => 'phaser[price]'} Price
+    %input{:name => 'phaser[price]', :type => 'text'}
+  .quantity
+    %label{:for => 'phaser[quantity]'} Quantity
+    %input{:name => 'phaser[quantity]', :type => 'number'}
+  .submit
+    %input{:type => 'submit', :value => 'Add'}
