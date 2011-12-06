@@ -4,6 +4,7 @@
     %th Phaser Type
     %th Price
     %th In Stock
+    %th Purchase
   - phasers.each do |phaser|
     %tr
       %td
@@ -12,3 +13,7 @@
         = phaser.price
       %td
         = phaser.quantity
+      %td
+        %form.checkout{:action => 'https://www.2checkout.com/checkout/spurchase', :method => 'post'}
+          %input{:type => 'number', :value => 1, :name => 'order[qty]'}
+          %input{:type => 'submit', :value => 'Checkout with 2CO'}

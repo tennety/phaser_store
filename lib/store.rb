@@ -1,5 +1,5 @@
 get '/' do
-  redirect '/store'
+  redirect to('/store')
 end
 
 get '/store' do
@@ -10,13 +10,22 @@ get '/admin/phasers/new' do
   haml :new_phaser
 end
 
-post '/phasers' do
-  phaser = Phaser.new(params[:phaser])
+post '/phaser' do
+  phaser = Phaser.new(params["phaser"])
   if phaser.save
     redirect '/store'
   end
 end
 
 get '/phasers' do
-  redirect '/store'
+  redirect to('/store')
+end
+
+post '/receipt' do
+  phaser = Phaser.find(params["receipt"].delete("phaser_id"))
+  receipt = Receipt.new(params["receipt"])
+  if receipt.save
+    phaser.decrement(receipt)
+    receipt.post_to_2co
+  end
 end

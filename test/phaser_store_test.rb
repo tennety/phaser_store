@@ -1,5 +1,6 @@
-require File.join(File.dirname(__FILE__), 'test_helper')
+require File.join(File.expand_path(File.dirname(__FILE__)), 'test_helper')
 
+include Capybara
 include Rack::Test::Methods
 
 def app
@@ -8,7 +9,11 @@ end
 
 describe 'Phaser Store' do
   before do
+    Capybara.app = Sinatra::Application.new
     @phaser = {:phaser => { :name => 'Classic', :price => 20.00, :quantity => 100 }}
+    @receipt = {:receipt => { :name => 'Classic', :price => 20.00, :quantity => 10, :status => 'created' }}
+    Phaser.all.map(&:destroy)
+    Receipt.all.map(&:destroy)
   end
 
   it 'has a store page' do
@@ -25,7 +30,7 @@ describe 'Phaser Store' do
     it 'records user added product and redirects to the store' do
       lines = Phaser.count
 
-      post '/phasers', @phaser
+      post '/phaser', @phaser
       last_response.redirect?.must_equal true
 
       follow_redirect!
@@ -36,6 +41,50 @@ describe 'Phaser Store' do
   end
 
   describe 'checking out' do
+    it 'has no Checkout button for an empty store' do
+      visit '/store'
+      within_table('catalog') do
+        page.has_button?('Checkout with 2CO').must_equal false
+      end
+    end
 
+    it 'has a Checkout button for each line' do
+      post '/phaser', @phaser
+
+      visit '/store'
+      within_table('catalog') do
+        page.has_button?('Checkout with 2CO').must_equal true
+      end
+    end
+
+    describe '/receipt' do
+      before do
+        post '/phaser', @phaser
+        @receipt[:receipt].merge!(:phaser_id => Phaser.first.id)
+      end
+
+      it 'creates an order for the specified line' do
+        receipts = Receipt.count
+
+        post '/receipt', @receipt
+        last_response.ok?.must_equal true
+
+        (Receipt.count - receipts).must_equal 1
+      end
+
+      it 'decrements the stock for the line by the order quantity' do
+        Phaser.first.quantity.must_equal @phaser[:phaser][:quantity]
+
+        post '/receipt', @receipt
+        Phaser.first.quantity.must_equal (@phaser[:phaser][:quantity] - @receipt[:receipt][:quantity])
+      end
+
+      it 'posts the order to 2Checkout' do
+        #WebMock -- stubs the request to 2CO
+        stub_request(:any, 'https://www.2checkout.com/checkout/purchase')
+        post '/receipt', @receipt
+        assert_requested :post, 'https://www.2checkout.com/checkout/purchase', :times => 1
+      end
+    end
   end
 end
