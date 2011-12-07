@@ -14,8 +14,7 @@ Here you can create and sell phasers to all parties in the United
 Federation of Planets for their Private Little Wars and Cowboy
 Diplomacy.
 
-<img src='http://imageshack.us/photo/my-images/94/phaser.jpg/' alt='Set
-to stun!' />
+<a target='_blank' title='ImageShack - Image And Video Hosting' href='http://imageshack.us/photo/my-images/94/phaser.jpg/'><img src='http://img94.imageshack.us/img94/6131/phaser.jpg' border='0'/></a>
 
 ## The Approach
 
