@@ -26,6 +26,6 @@ post '/receipt' do
   receipt = Receipt.new(params["receipt"])
   if receipt.save
     phaser.decrement(receipt)
-    receipt.post_to_2co
+    redirect to(receipt.checkout_url)
   end
 end

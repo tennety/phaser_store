@@ -1,6 +1,6 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), 'test_helper')
 
-include Capybara
+include Capybara::DSL
 include Rack::Test::Methods
 
 def app
@@ -67,7 +67,7 @@ describe 'Phaser Store' do
         receipts = Receipt.count
 
         post '/receipt', @receipt
-        last_response.ok?.must_equal true
+        last_response.redirect?.must_equal true
 
         (Receipt.count - receipts).must_equal 1
       end
@@ -79,11 +79,11 @@ describe 'Phaser Store' do
         Phaser.first.quantity.must_equal (@phaser[:phaser][:quantity] - @receipt[:receipt][:quantity])
       end
 
-      it 'posts the order to 2Checkout' do
-        #WebMock -- stubs the request to 2CO
-        stub_request(:any, 'https://www.2checkout.com/checkout/purchase')
+      it 'redirects to 2Checkout with the order parameters' do
         post '/receipt', @receipt
-        assert_requested :post, 'https://www.2checkout.com/checkout/purchase', :times => 1
+        target = URI.parse last_response.location
+        target.host.must_equal 'www.2checkout.com'
+        target.path.must_match /purchase/
       end
     end
   end
